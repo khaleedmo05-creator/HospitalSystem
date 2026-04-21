@@ -1,0 +1,358 @@
+﻿@model List<Doctor>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Doctors - HospitalSystem</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      background-image: url('/images/cover1.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(180, 210, 240, 0.55);
+      backdrop-filter: blur(2px);
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 36px;
+      background: rgba(10,22,40,0.45);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: white;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #4fc3f7, #2196f3);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 17px; height: 17px; fill: white; }
+
+    .nav-actions { display: flex; gap: 10px; }
+
+    .btn-nav {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 18px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: white;
+      transition: all 0.2s;
+    }
+    .btn-nav:hover { background: rgba(255,255,255,0.2); color: white; }
+    .btn-nav svg { width: 15px; height: 15px; stroke: currentColor; fill: none; }
+
+    /* PAGE CONTENT */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      padding: 110px 40px 60px;
+    }
+
+    h1.page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #1a2a4a;
+      text-align: center;
+      margin-bottom: 28px;
+      text-shadow: 0 2px 8px rgba(255,255,255,0.6);
+    }
+
+    /* SEARCH BAR */
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      max-width: 900px;
+      margin: 0 auto 36px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 11px 18px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.92);
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a2a4a;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .search-bar input:focus { border-color: #2196f3; }
+
+    .btn-filter {
+      padding: 11px 28px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+    .btn-filter.blue { background: #2196f3; color: white; }
+    .btn-filter.blue:hover { background: #1976d2; }
+    .btn-filter.gray { background: #6b7a8d; color: white; }
+    .btn-filter.gray:hover { background: #556070; }
+
+    /* DOCTOR CARDS */
+    .doctors-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto 36px;
+    }
+
+    @@media (max-width: 900px) { .doctors-grid { grid-template-columns: repeat(2,1fr); } }
+    @@media (max-width: 580px) { .doctors-grid { grid-template-columns: 1fr; } }
+
+    .doctor-card {
+      background: rgba(255,255,255,0.97);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(30,60,120,0.13);
+      transition: transform 0.22s, box-shadow 0.22s;
+      display: flex;
+      flex-direction: column;
+    }
+    .doctor-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(30,60,120,0.2);
+    }
+
+    .doctor-card img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      object-position: top;
+    }
+
+    .doctor-card-body {
+      padding: 20px 20px 22px;
+      text-align: center;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .doctor-card-body h5 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1a2a4a;
+    }
+
+    .doctor-card-body p {
+      font-size: 0.88rem;
+      color: #6b7a8d;
+      margin-bottom: 10px;
+    }
+
+    .btn-appointment {
+      display: inline-block;
+      padding: 10px 26px;
+      background: #2196f3;
+      color: white;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      font-family: 'DM Sans', sans-serif;
+      margin-top: auto;
+    }
+    .btn-appointment:hover { background: #1976d2; transform: translateY(-1px); color: white; }
+
+    /* PAGINATION */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pagination a, .pagination span {
+      padding: 8px 16px;
+      border-radius: 7px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.75);
+      color: #1a2a4a;
+      transition: all 0.18s;
+    }
+    .pagination a:hover { background: rgba(255,255,255,0.95); }
+    .pagination .active {
+      background: #2196f3;
+      color: white;
+      border-color: #2196f3;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8zm1 12h-2v-6h2v6zm0-8h-2V6h2v2z"/></svg>
+      </div>
+      HospitalSystem
+    </a>
+    <div class="nav-actions">
+  <a href="/Appointment/AllAppointments" class="btn-nav">
+    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    All Appointments
+  </a>
+  <a href="/Appointment/Create" class="btn-nav">
+    <svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Book Appointment
+  </a>
+</div>
+  </nav>
+
+  <div class="page-wrapper">
+
+    <h1 class="page-title">Our Doctors</h1>
+
+    <!-- SEARCH -->
+    <form method="get" action="">
+      <div class="search-bar">
+        <input type="text" name="name" placeholder="Search by doctor name" value="@ViewBag.NameFilter" />
+        <input type="text" name="specialization" placeholder="Search by specialization" value="@ViewBag.SpecFilter" />
+        <button type="submit" class="btn-filter blue">Filter</button>
+        <a href="/Appointment/Index" class="btn-filter gray">Reset</a>
+      </div>
+    </form>
+
+    <!-- DOCTORS GRID -->
+    <div class="doctors-grid">
+      @foreach (var item in Model)
+      {
+        <div class="doctor-card">
+          <img src="/images/@item.Image" alt="@item.Name" />
+          <div class="doctor-card-body">
+            <h5>@item.Name</h5>
+            <p>@item.Specialization.Name</p>
+            <a href="/Appointment/Book?doctorId=@item.Id" class="btn-appointment">Make Appointment</a>
+          </div>
+        </div>
+      }
+    </div>
+
+   
+    <div class="pagination">
+      @if (ViewBag.CurrentPage > 1)
+      {
+        <a href="/Appointment/Index?page=@(ViewBag.CurrentPage - 1)&name=@ViewBag.NameFilter&specialization=@ViewBag.SpecFilter">Previous</a>
+      }
+      else
+      {
+        <span style="opacity:0.4; cursor:not-allowed;">Previous</span>
+      }
+
+      @for (int i = 1; i <= ViewBag.TotalPages; i++)
+      {
+        if (i == ViewBag.CurrentPage)
+        {
+          <span class="active">@i</span>
+        }
+        else
+        {
+          <a href="/Appointment/Index?page=@i&name=@ViewBag.NameFilter&specialization=@ViewBag.SpecFilter">@i</a>
+        }
+      }
+
+      @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+      {
+        <a href="/Appointment/Index?page=@(ViewBag.CurrentPage + 1)&name=@ViewBag.NameFilter&specialization=@ViewBag.SpecFilter">Next</a>
+      }
+      else
+      {
+        <span style="opacity:0.4; cursor:not-allowed;">Next</span>
+      }
+    </div>
+
+  </div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+@* @model List<Doctor>
+
+
+
+<div class="container">
+    <div class="row">
+        @foreach(var item in Model)
+        {
+            <div class="col-4">
+                <div class="card" style="width: 18rem;">
+                    <img src="/images/@item.Image" class="card-img-top" alt="doctor image">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="card-text">@item.Specialization.Name</p>
+                        <a href="#" class="btn btn-primary">make appointment</a>
+                    </div>
+                </div>
+                
+            </div>
+        }
+    </div>
+
+</div> *@
