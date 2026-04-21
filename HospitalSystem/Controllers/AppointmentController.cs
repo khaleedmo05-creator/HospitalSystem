@@ -10,7 +10,7 @@ namespace HospitalSystem.Controllers
         ApplicationDbContext context = new ApplicationDbContext();
         public IActionResult Index(string name, string specialization, int page = 1)
         {
-            int pageSize = 3; // 3 doctors per page like the screenshot
+            int pageSize = 3; 
 
             var doctors = context.Doctors.Include(d => d.Specialization).AsQueryable();
 
